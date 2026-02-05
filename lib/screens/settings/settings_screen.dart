@@ -89,7 +89,7 @@ class SettingsScreen extends ConsumerWidget {
             child: Column(
               children: [
                 Text(
-                  'Made with ❤️ by WallsOfArt',
+                  'Made with ❤️ by Muhammad Komail',
                   style: AppTypography.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.space1),

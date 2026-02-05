@@ -1,0 +1,22 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="8" fill="#0c1017"/>
+
+  <!-- Stylized "W" made of geometric shapes representing walls/frames -->
+  <!-- Left bar -->
+  <rect x="6" y="8" width="4" height="16" rx="1" fill="#3b82f6"/>
+
+  <!-- Middle V shape -->
+  <path d="M12 8L16 20L20 8" stroke="url(#gradient)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Right bar -->
+  <rect x="22" y="8" width="4" height="16" rx="1" fill="#e11d48"/>
+
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient" x1="12" y1="8" x2="20" y2="8" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </linearGradient>
+  </defs>
+</svg>

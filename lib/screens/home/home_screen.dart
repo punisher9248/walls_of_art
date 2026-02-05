@@ -58,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SliverToBoxAdapter(
               child: tagsAsync.when(
                 loading: () => const SizedBox(height: 60),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
                 data: (tags) => TrendingTags(
                   tags: tags.take(10).toList(),
                   onTagTap: (tag) => context.push(
@@ -89,7 +89,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SliverToBoxAdapter(
               child: tagsAsync.when(
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
                 data: (tags) {
                   // Get first 6 tags with wallpapers for featured galleries
                   final displayTags = tags.take(6).toList();
@@ -130,7 +130,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SliverToBoxAdapter(
               child: tagsAsync.when(
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
                 data: (tags) => AllCategoriesGrid(
                   tags: tags,
                   onTagTap: (tag) => context.push(

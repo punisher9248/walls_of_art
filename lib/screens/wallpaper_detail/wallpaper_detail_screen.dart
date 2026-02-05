@@ -412,12 +412,12 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
     if (_wallpaper == null) return;
 
     try {
-      await Share.share(
-        'Check out this amazing wallpaper from Walls of Art!\n\n'
+      await SharePlus.instance.share(ShareParams(
+       title: 'Check out this amazing wallpaper from Walls of Art!\n\n'
         '${_wallpaper!.title}\n'
         '${_wallpaper!.downloadUrl}',
         subject: 'Walls of Art - ${_wallpaper!.title}',
-      );
+      ));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -59,7 +59,10 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
     // Get the display name for the current tag
     String titleText = 'Gallery';
     if (currentTag != null) {
-      final tags = tagsAsync.valueOrNull;
+      final tags = tagsAsync.maybeWhen(
+        data: (tags) => tags,
+        orElse: () => null,
+      );
       final tag = tags?.where((t) => t.slug == currentTag).firstOrNull;
       if (tag != null) {
         titleText = tag.name;

@@ -145,7 +145,7 @@ class AppFooter extends StatelessWidget {
                       size: 14,
                     ),
                     Text(
-                      ' for wallpaper enthusiasts',
+                      ' by Muhammad Komail',
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.textMuted,
                       ),

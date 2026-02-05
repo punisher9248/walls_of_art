@@ -13,6 +13,7 @@ class WallsOfArtApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       routerConfig: appRouter,
+
     );
   }
 }
