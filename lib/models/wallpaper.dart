@@ -34,7 +34,7 @@ class Wallpaper with _$Wallpaper {
       _$WallpaperFromJson(json);
 
   // Computed properties
-  String get shortId => id.length > 6 ? id.substring(0, 6).toUpperCase() : id.toUpperCase();
+  String get shortId => id.toUpperCase();
 
   double get aspectRatio => width / height;
 

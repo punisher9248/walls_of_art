@@ -260,13 +260,6 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
                           ),
                           const SizedBox(height: AppSpacing.space6),
                         ],
-                        // Source
-                        if (_wallpaper!.sourceUrl != null) ...[
-                          Text(
-                            'Source: ${_wallpaper!.source}${_wallpaper!.subreddit != null ? ' • r/${_wallpaper!.subreddit}' : ''}',
-                            style: AppTypography.bodySmall,
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -442,7 +435,7 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
     final downloadService = ref.read(downloadServiceProvider);
     final result = await downloadService.downloadWallpaper(
       _wallpaper!.downloadUrl,
-      fileName: 'wallsofart_${_wallpaper!.shortId}.jpg',
+      fileName: 'Walls_Of_Art_${_wallpaper!.slug}.jpg',
       onProgress: (received, total) {
         if (total > 0) {
           setState(() {

@@ -1,7 +1,6 @@
-import 'dart:io';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
+import '../config/constants.dart';
 import 'permission_service.dart';
 
 class DownloadResult {
@@ -21,7 +20,7 @@ class DownloadResult {
 }
 
 class DownloadService {
-  final Dio _dio = Dio();
+  static const _channel = MethodChannel(AppConstants.wallpaperChannel);
 
   Future<DownloadResult> downloadWallpaper(
     String imageUrl, {
@@ -36,7 +35,7 @@ class DownloadService {
     }
 
     try {
-      // Request permission
+      // Request permission first
       final permResult = await PermissionService.requestSavePermission();
 
       if (permResult == PermissionResult.permanentlyDenied) {
@@ -56,102 +55,29 @@ class DownloadService {
         );
       }
 
-      // Get the download directory
-      final directory = await _getDownloadDirectory();
-      if (directory == null) {
-        return DownloadResult(
-          success: false,
-          message: 'Could not access download directory',
-        );
-      }
-
-      // Generate file name from URL if not provided
-      final name = fileName ?? _getFileNameFromUrl(imageUrl);
-      final filePath = '${directory.path}/$name';
-
-      // Check if file already exists
-      final file = File(filePath);
-      if (await file.exists()) {
-        return DownloadResult(
-          success: true,
-          message: 'Wallpaper already downloaded',
-          filePath: filePath,
-        );
-      }
-
-      // Download the file
-      await _dio.download(
-        imageUrl,
-        filePath,
-        onReceiveProgress: onProgress,
-        options: Options(
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          },
-        ),
+      // Save directly to gallery via native platform channel
+      final result = await _channel.invokeMethod<Map<dynamic, dynamic>>(
+        'saveToGallery',
+        {
+          'url': imageUrl,
+          'fileName': fileName ?? 'wallpaper_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        },
       );
 
       return DownloadResult(
-        success: true,
-        message: 'Wallpaper saved to gallery',
-        filePath: filePath,
+        success: result?['success'] == true,
+        message: result?['message']?.toString() ?? 'Unknown result',
       );
-    } on DioException catch (e) {
+    } on PlatformException catch (e) {
       return DownloadResult(
         success: false,
-        message: 'Download failed: ${e.message}',
+        message: e.message ?? 'Failed to save image',
       );
     } catch (e) {
       return DownloadResult(
         success: false,
-        message: 'Download failed: $e',
+        message: 'Failed to save: $e',
       );
     }
-  }
-
-  Future<Directory?> _getDownloadDirectory() async {
-    if (Platform.isAndroid) {
-      // Use app-specific external directory (works on all Android versions
-      // without extra permissions)
-      final externalDir = await getExternalStorageDirectory();
-      if (externalDir != null) {
-        // Try shared Pictures directory for visibility in gallery
-        final picturesPath = externalDir.path.replaceFirst(
-          RegExp(r'/Android/data/[^/]+/files'),
-          '/Pictures/WallsOfArt',
-        );
-        final picturesDir = Directory(picturesPath);
-        try {
-          if (!await picturesDir.exists()) {
-            await picturesDir.create(recursive: true);
-          }
-          return picturesDir;
-        } catch (_) {
-          // Shared storage not accessible (Android 10+ scoped storage),
-          // fall back to app-specific directory
-          final appDir = Directory('${externalDir.path}/WallsOfArt');
-          if (!await appDir.exists()) {
-            await appDir.create(recursive: true);
-          }
-          return appDir;
-        }
-      }
-      return await getApplicationDocumentsDirectory();
-    } else if (Platform.isIOS) {
-      return await getApplicationDocumentsDirectory();
-    }
-    return null;
-  }
-
-  String _getFileNameFromUrl(String url) {
-    final uri = Uri.parse(url);
-    final pathSegments = uri.pathSegments;
-    if (pathSegments.isNotEmpty) {
-      final lastSegment = pathSegments.last;
-      if (lastSegment.contains('.')) {
-        return lastSegment;
-      }
-    }
-    return 'wallpaper_${DateTime.now().millisecondsSinceEpoch}.jpg';
   }
 }
