@@ -27,6 +27,10 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
     super.initState();
     _pageController = PageController();
     _startAutoScroll();
+    // Load random hero wallpapers
+    Future.microtask(() {
+      ref.read(heroWallpapersProvider.notifier).load();
+    });
   }
 
   @override
@@ -38,10 +42,10 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
 
   void _startAutoScroll() {
     _autoScrollTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      final wallpapers = ref.read(wallpapersProvider).wallpapers;
-      if (wallpapers.isEmpty) return;
+      final heroWallpapers = ref.read(heroWallpapersProvider);
+      if (heroWallpapers.isEmpty) return;
 
-      final maxPages = wallpapers.take(8).length;
+      final maxPages = heroWallpapers.length;
       if (maxPages == 0) return;
 
       _currentPage = (_currentPage + 1) % maxPages;
@@ -57,8 +61,7 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
 
   @override
   Widget build(BuildContext context) {
-    final wallpapersState = ref.watch(wallpapersProvider);
-    final heroWallpapers = wallpapersState.wallpapers.take(8).toList();
+    final heroWallpapers = ref.watch(heroWallpapersProvider);
 
     return Container(
       height: 480,

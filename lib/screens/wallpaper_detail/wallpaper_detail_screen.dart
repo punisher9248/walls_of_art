@@ -10,6 +10,7 @@ import '../../config/routes.dart';
 import '../../providers/providers.dart';
 import '../../models/models.dart';
 import '../../services/wallpaper_service.dart';
+import '../../services/permission_service.dart';
 import '../../utils/image_proxy.dart';
 
 class WallpaperDetailScreen extends ConsumerStatefulWidget {
@@ -456,28 +457,85 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
       _downloadProgress = 0;
     });
 
-    if (mounted) {
+    if (!mounted) return;
+
+    // Handle permission denied - show dialog to open settings
+    if (result.permissionPermanentlyDenied) {
+      _showPermissionSettingsDialog();
+      return;
+    }
+
+    if (result.permissionDenied) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.message),
-          backgroundColor: result.success ? AppColors.success : AppColors.error,
-          action: showInstructions && result.success
-              ? SnackBarAction(
-                  label: 'Set as Wallpaper',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    // Guide user to set wallpaper manually on iOS
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Open Photos app and set as wallpaper from there'),
-                        duration: Duration(seconds: 4),
-                      ),
-                    );
-                  },
-                )
-              : null,
+          content: const Text('Permission required to save wallpapers'),
+          backgroundColor: AppColors.error,
+          action: SnackBarAction(
+            label: 'Settings',
+            textColor: Colors.white,
+            onPressed: () => PermissionService.openSettings(),
+          ),
         ),
       );
+      return;
     }
+
+    // Normal success/error handling
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result.message),
+        backgroundColor: result.success ? AppColors.success : AppColors.error,
+        action: showInstructions && result.success
+            ? SnackBarAction(
+                label: 'Set as Wallpaper',
+                textColor: Colors.white,
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Open Photos app and set as wallpaper from there'),
+                      duration: Duration(seconds: 4),
+                    ),
+                  );
+                },
+              )
+            : null,
+      ),
+    );
+  }
+
+  void _showPermissionSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        icon: Icon(
+          Icons.folder_off_outlined,
+          color: AppColors.warning,
+          size: 48,
+        ),
+        title: Text(
+          'Permission Required',
+          style: AppTypography.headlineMedium,
+        ),
+        content: Text(
+          'Storage permission was denied. To save wallpapers, '
+          'please enable storage access in your device settings.',
+          style: AppTypography.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              PermissionService.openSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -44,6 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onRefresh: () async {
           await ref.read(wallpapersProvider.notifier).refresh();
           await ref.read(tagsNotifierProvider.notifier).refresh();
+          await ref.read(heroWallpapersProvider.notifier).refresh();
         },
         color: AppColors.primary,
         backgroundColor: AppColors.surface,

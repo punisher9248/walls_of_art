@@ -341,6 +341,45 @@ final tagWallpapersProvider =
       .toList();
 });
 
+// ============ Hero Wallpapers Provider ============
+
+class HeroWallpapersNotifier extends StateNotifier<List<Wallpaper>> {
+  final ApiService _apiService;
+
+  HeroWallpapersNotifier(this._apiService) : super([]);
+
+  Future<void> load() async {
+    if (state.isNotEmpty) return;
+    try {
+      final response = await _apiService.getWallpapers(
+        page: 1,
+        limit: 8,
+        sort: 'random',
+      );
+      state = response.wallpapers;
+    } catch (_) {
+      // Silently fail - hero section will show gradient fallback
+    }
+  }
+
+  Future<void> refresh() async {
+    try {
+      final response = await _apiService.getWallpapers(
+        page: 1,
+        limit: 8,
+        sort: 'random',
+      );
+      state = response.wallpapers;
+    } catch (_) {}
+  }
+}
+
+final heroWallpapersProvider =
+    StateNotifierProvider<HeroWallpapersNotifier, List<Wallpaper>>((ref) {
+  final apiService = ref.watch(apiServiceProvider);
+  return HeroWallpapersNotifier(apiService);
+});
+
 // ============ Navigation State ============
 
 final selectedTabProvider = StateProvider<int>((ref) => 0);

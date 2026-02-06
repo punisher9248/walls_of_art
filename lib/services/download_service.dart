@@ -2,17 +2,21 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'permission_service.dart';
 
 class DownloadResult {
   final bool success;
   final String message;
   final String? filePath;
+  final bool permissionDenied;
+  final bool permissionPermanentlyDenied;
 
   DownloadResult({
     required this.success,
     required this.message,
     this.filePath,
+    this.permissionDenied = false,
+    this.permissionPermanentlyDenied = false,
   });
 }
 
@@ -24,7 +28,6 @@ class DownloadService {
     String? fileName,
     void Function(int received, int total)? onProgress,
   }) async {
-    // Web doesn't support direct downloads this way
     if (kIsWeb) {
       return DownloadResult(
         success: false,
@@ -33,15 +36,24 @@ class DownloadService {
     }
 
     try {
-      // Request storage permission on Android
-      if (Platform.isAndroid) {
-        final status = await _requestStoragePermission();
-        if (!status) {
-          return DownloadResult(
-            success: false,
-            message: 'Storage permission denied. Please grant permission in settings.',
-          );
-        }
+      // Request permission
+      final permResult = await PermissionService.requestSavePermission();
+
+      if (permResult == PermissionResult.permanentlyDenied) {
+        return DownloadResult(
+          success: false,
+          message: 'Storage permission is required. Please enable it in Settings.',
+          permissionDenied: true,
+          permissionPermanentlyDenied: true,
+        );
+      }
+
+      if (permResult == PermissionResult.denied) {
+        return DownloadResult(
+          success: false,
+          message: 'Storage permission is required to save wallpapers.',
+          permissionDenied: true,
+        );
       }
 
       // Get the download directory
@@ -97,51 +109,32 @@ class DownloadService {
     }
   }
 
-  Future<bool> _requestStoragePermission() async {
-    if (Platform.isAndroid) {
-      // For Android 13+ (API 33+), we need different permissions
-      final androidInfo = await _getAndroidSdkVersion();
-
-      if (androidInfo >= 33) {
-        // Android 13+ uses granular media permissions
-        final photos = await Permission.photos.request();
-        return photos.isGranted;
-      } else if (androidInfo >= 30) {
-        // Android 11-12 uses MANAGE_EXTERNAL_STORAGE or scoped storage
-        final storage = await Permission.storage.request();
-        return storage.isGranted;
-      } else {
-        // Android 10 and below
-        final storage = await Permission.storage.request();
-        return storage.isGranted;
-      }
-    }
-    return true;
-  }
-
-  Future<int> _getAndroidSdkVersion() async {
-    if (Platform.isAndroid) {
-      // This is a simplified version - in production you'd use device_info_plus
-      return 33; // Assume modern Android
-    }
-    return 0;
-  }
-
   Future<Directory?> _getDownloadDirectory() async {
     if (Platform.isAndroid) {
-      // Use Pictures directory for wallpapers
+      // Use app-specific external directory (works on all Android versions
+      // without extra permissions)
       final externalDir = await getExternalStorageDirectory();
       if (externalDir != null) {
-        // Navigate to Pictures/WallsOfArt
+        // Try shared Pictures directory for visibility in gallery
         final picturesPath = externalDir.path.replaceFirst(
           RegExp(r'/Android/data/[^/]+/files'),
           '/Pictures/WallsOfArt',
         );
         final picturesDir = Directory(picturesPath);
-        if (!await picturesDir.exists()) {
-          await picturesDir.create(recursive: true);
+        try {
+          if (!await picturesDir.exists()) {
+            await picturesDir.create(recursive: true);
+          }
+          return picturesDir;
+        } catch (_) {
+          // Shared storage not accessible (Android 10+ scoped storage),
+          // fall back to app-specific directory
+          final appDir = Directory('${externalDir.path}/WallsOfArt');
+          if (!await appDir.exists()) {
+            await appDir.create(recursive: true);
+          }
+          return appDir;
         }
-        return picturesDir;
       }
       return await getApplicationDocumentsDirectory();
     } else if (Platform.isIOS) {
@@ -159,7 +152,6 @@ class DownloadService {
         return lastSegment;
       }
     }
-    // Fallback: generate a name based on timestamp
     return 'wallpaper_${DateTime.now().millisecondsSinceEpoch}.jpg';
   }
 }
