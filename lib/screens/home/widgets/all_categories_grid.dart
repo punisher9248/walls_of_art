@@ -51,7 +51,7 @@ class AllCategoriesGrid extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                 ),
                 child: const Icon(
-                  Icons.category_outlined,
+                  Icons.grid_view_rounded,
                   color: AppColors.primary,
                   size: 22,
                 ),

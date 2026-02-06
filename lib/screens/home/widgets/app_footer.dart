@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../../config/colors.dart';
 import '../../../config/typography.dart';
 import '../../../config/spacing.dart';
@@ -23,10 +24,7 @@ class AppFooter extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.surface,
-            AppColors.surface.withValues(alpha: 0.8),
-          ],
+          colors: [AppColors.surface, AppColors.surface.withValues(alpha: 0.8)],
         ),
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
         border: Border.all(color: AppColors.border),
@@ -50,14 +48,14 @@ class AppFooter extends StatelessWidget {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
+                    // gradient: AppColors.primaryGradient,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
                     boxShadow: AppColors.primaryGlowShadow,
                   ),
-                  child: const Icon(
-                    Icons.wallpaper,
-                    color: Colors.white,
-                    size: 32,
+                  child: SvgPicture.asset(
+                    'assets/icons/icon.svg',
+                    width: 160,
+                    height: 160,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.space4),
@@ -197,18 +195,12 @@ class _FooterLinkButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.background.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-            border: Border.all(
-              color: AppColors.border.withValues(alpha: 0.5),
-            ),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 14,
-                color: AppColors.textSecondary,
-              ),
+              Icon(icon, size: 14, color: AppColors.textSecondary),
               const SizedBox(width: AppSpacing.space1),
               Text(
                 label,

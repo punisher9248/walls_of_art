@@ -101,6 +101,10 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.grid_view_rounded),
+            onPressed: () => _showCategoriesBottomSheet(context),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push(AppRoutes.settings),
           ),
@@ -111,13 +115,6 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
         color: AppColors.primary,
         backgroundColor: AppColors.surface,
         child: _buildBody(wallpapersState, favorites, columns),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCategoriesBottomSheet(context),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.textPrimary,
-        icon: const Icon(Icons.category_outlined),
-        label: const Text('Categories'),
       ),
     );
   }
@@ -137,7 +134,12 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
 
     return GridView.builder(
       controller: _scrollController,
-      padding: EdgeInsets.all(Responsive.getHorizontalPadding(context)),
+      padding: EdgeInsets.only(
+        left: Responsive.getHorizontalPadding(context),
+        right: Responsive.getHorizontalPadding(context),
+        top: Responsive.getHorizontalPadding(context),
+        bottom: 100,
+      ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: columns,
         childAspectRatio: 9 / 16,
@@ -274,7 +276,7 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
                   ),
                   data: (tags) => ListView.builder(
                     controller: scrollController,
-                    padding: const EdgeInsets.all(AppSpacing.space4),
+                    padding: const EdgeInsets.only(bottom: 85, top: AppSpacing.space4, left: AppSpacing.space4, right: AppSpacing.space4),
                     itemCount: tags.length + 1,
                     itemBuilder: (context, index) {
                       if (index == 0) {

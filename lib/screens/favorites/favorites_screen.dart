@@ -92,7 +92,12 @@ class FavoritesScreen extends ConsumerWidget {
     Set<String> favoriteIds,
   ) {
     return GridView.builder(
-      padding: const EdgeInsets.all(AppSpacing.space2),
+      padding: const EdgeInsets.only(
+        left: AppSpacing.space2,
+        right: AppSpacing.space2,
+        top: AppSpacing.space2,
+        bottom: 100,
+      ),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 9 / 16,

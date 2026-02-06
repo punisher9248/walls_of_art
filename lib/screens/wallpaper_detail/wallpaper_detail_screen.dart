@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:walls_art_app/config/constants.dart';
 import '../../config/colors.dart';
 import '../../config/typography.dart';
 import '../../config/spacing.dart';
@@ -198,19 +199,25 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
                           children: [
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: _isDownloading ? null : () => _downloadWallpaper(),
+                                onPressed: _isDownloading
+                                    ? null
+                                    : () => _downloadWallpaper(),
                                 icon: _isDownloading
                                     ? SizedBox(
                                         width: 20,
                                         height: 20,
                                         child: CircularProgressIndicator(
-                                          value: _downloadProgress > 0 ? _downloadProgress : null,
+                                          value: _downloadProgress > 0
+                                              ? _downloadProgress
+                                              : null,
                                           strokeWidth: 2,
                                           color: AppColors.primary,
                                         ),
                                       )
                                     : const Icon(Icons.download),
-                                label: Text(_isDownloading ? 'Saving...' : 'Save'),
+                                label: Text(
+                                  _isDownloading ? 'Saving...' : 'Save',
+                                ),
                               ),
                             ),
                             const SizedBox(width: AppSpacing.space3),
@@ -232,9 +239,7 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
                                       ? AppColors.secondary
                                       : null,
                                 ),
-                                label: Text(
-                                  isFavorite ? 'Saved' : 'Favorite',
-                                ),
+                                label: Text(isFavorite ? 'Saved' : 'Favorite'),
                               ),
                             ),
                           ],
@@ -394,9 +399,11 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.message),
-          backgroundColor:
-              result.success ? AppColors.success : AppColors.error,
+          content: Text(
+            result.message,
+            style: TextStyle(color: AppColors.textPrimary),
+          ),
+          backgroundColor: result.success ? AppColors.success : AppColors.error,
         ),
       );
     }
@@ -406,17 +413,25 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
     if (_wallpaper == null) return;
 
     try {
-      await SharePlus.instance.share(ShareParams(
-       title: 'Check out this amazing wallpaper from Walls of Art!\n\n'
-        '${_wallpaper!.title}\n'
-        '${_wallpaper!.downloadUrl}',
-        subject: 'Walls of Art - ${_wallpaper!.title}',
-      ));
+      await SharePlus.instance.share(
+        ShareParams(
+          title: "Walls of Art",
+          text:
+              'Check this amazing wallpaper!\n'
+              '${_wallpaper!.title}\n'
+              '${_wallpaper!.downloadUrl}\n\n'
+              'Check out more wallpapers at Walls of Art: ${AppConstants.baseUrl.replaceAll('/api', '')}',
+          subject: 'I found this amazing wallpaper on Walls of Art!',
+        ),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to share: $e'),
+            content: Text(
+              'Failed to share: $e',
+              style: TextStyle(color: AppColors.textPrimary),
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -476,7 +491,10 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
     // Normal success/error handling
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result.message),
+        content: Text(
+          result.message,
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
         backgroundColor: result.success ? AppColors.success : AppColors.error,
         action: showInstructions && result.success
             ? SnackBarAction(
@@ -485,7 +503,9 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Open Photos app and set as wallpaper from there'),
+                      content: Text(
+                        'Open Photos app and set as wallpaper from there',
+                      ),
                       duration: Duration(seconds: 4),
                     ),
                   );
@@ -506,10 +526,7 @@ class _WallpaperDetailScreenState extends ConsumerState<WallpaperDetailScreen> {
           color: AppColors.warning,
           size: 48,
         ),
-        title: Text(
-          'Permission Required',
-          style: AppTypography.headlineMedium,
-        ),
+        title: Text('Permission Required', style: AppTypography.headlineMedium),
         content: Text(
           'Storage permission was denied. To save wallpapers, '
           'please enable storage access in your device settings.',

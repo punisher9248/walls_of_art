@@ -150,9 +150,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
 
-            // Bottom padding for navigation bar
+            // Bottom padding for floating navigation bar
             const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpacing.space20),
+              child: SizedBox(height: 100),
             ),
           ],
         ),
